@@ -1,0 +1,43 @@
+name: Uygulamayi kataloga ekle
+on:
+  issues:
+    types: [labeled]
+permissions:
+  contents: write
+  issues: write
+jobs:
+  ekle:
+    if: github.event.label.name == 'onaylı'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: apps.json güncelle
+        env:
+          BODY: ${{ github.event.issue.body }}
+          NUM: ${{ github.event.issue.number }}
+        run: |
+          python3 - <<'PY'
+          import json, os, re
+          m = re.search(r"```json\s*(.*?)```", os.environ["BODY"], re.S)
+          if not m: raise SystemExit("json bloğu yok")
+          a = json.loads(m.group(1))
+          if a.get("runtime") not in ("html", "python", "apk"): raise SystemExit("runtime hatalı")
+          if a.get("runtime") == "apk" and not str(a.get("url", "")).startswith("https://"): raise SystemExit("apk url https olmalı")
+          slug = re.sub(r"[^a-z0-9]+", "-", a["name"].lower()).strip("-") or "app"
+          keys = ["name","dev","cat","icon","desc","ver","runtime","code","url"]
+          app = {k: a[k] for k in keys if k in a}
+          app["id"] = slug + "-" + os.environ["NUM"]
+          apps = json.load(open("apps.json", encoding="utf-8"))
+          apps = [x for x in apps if x["id"] != app["id"]] + [app]
+          json.dump(apps, open("apps.json", "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+          PY
+      - name: Kaydet ve kapat
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git config user.name "hukum-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add apps.json
+          git commit -m "Yeni uygulama (#${{ github.event.issue.number }})"
+          git push
+          gh issue close ${{ github.event.issue.number }} --comment "Onaylandı, mağazaya eklendi."
