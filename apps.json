@@ -1,0 +1,6 @@
+[
+ {"id":"tikla-say","name":"Tıkla Say","dev":"HÜKÜM","cat":"oyun","icon":"👆","desc":"Basit sayaç oyunu. HTML/JS örneği.","ver":"1.0","runtime":"html",
+  "code":"<body style=\"margin:0;display:grid;place-items:center;height:100vh;background:#0A1320\"><button data-c=\"0\" onclick=\"this.textContent=this.dataset.c=+this.dataset.c+1\" style=\"font-size:48px;padding:30px 60px;border:0;border-radius:24px;background:#C8232C;color:#fff\">0</button></body>"},
+ {"id":"py-merhaba","name":"Python Merhaba","dev":"HÜKÜM","cat":"uygulama","icon":"🐍","desc":"Python kodu telefonda çalışır (Pyodide). İlk açılışta internet ister.","ver":"1.0","runtime":"python",
+  "code":"import sys\nprint('Merhaba HÜKÜM!')\nprint('Python', sys.version.split()[0])\nprint(sum(range(1, 101)))"}
+]
